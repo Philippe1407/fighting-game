@@ -1,13 +1,14 @@
 import { Sprite } from "../class/sprite";
 import shopSrc from "../assets/shop.png";
 
-export const shop = new Sprite(
-  {
-    x: 0,
-    y: 0,
+export const shop = new Sprite({
+  position: {
+    x: 625,
+    y: 125,
   },
-  shopSrc,
-  200,
-  200,
-  1
-);
+  imageSrc: shopSrc,
+  width: 600,
+  height: 200,
+  scale: 2.75,
+  framesMax: 6,
+});

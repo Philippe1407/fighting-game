@@ -1,6 +1,6 @@
 import { groundRatio } from "../utils/constant";
 
-const gravity = 0.2;
+const gravity = 0.3;
 
 export class Fighter {
   public position: { x: number; y: number };
@@ -51,7 +51,7 @@ export class Fighter {
     this.position.y += this.velocity.y;
     this.position.x += this.velocity.x;
 
-    if (this.position.y + this.height + this.velocity.y > ctx.canvas.height * groundRatio) {
+    if (this.position.y + this.height + this.velocity.y > 480) {
       this.velocity.y = 0;
       this.isJumping = false;
     } else {

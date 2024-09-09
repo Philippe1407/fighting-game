@@ -16,10 +16,7 @@ const App = () => {
   const [timer, setTimer] = useState(90);
 
   const gameOver = () => {
-    if (playerHealthPercent === 0 || enemyHealthPercent === 0 || timer === 0) {
-      return true;
-    }
-    return false;
+    return playerHealthPercent === 0 || enemyHealthPercent === 0 || timer === 0
   };
 
   const gameInterval = useRef<number>();
