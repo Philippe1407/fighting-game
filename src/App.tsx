@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
+import { background } from "./component/background";
 import { controller, keysPress } from "./component/controller";
 import { enemy } from "./component/enemy";
 import { player } from "./component/player";
+import { shop } from "./component/shop";
 import { RectangularCollision } from "./utils/rectangularCollision";
 const App = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -11,7 +13,28 @@ const App = () => {
 
   const [playerHealthPercent, setPlayerHealthPercent] = useState(100);
   const [enemyHealthPercent, setEnemyHealthPercent] = useState(100);
-  const [timer, setTimer] = useState(2);
+  const [timer, setTimer] = useState(90);
+
+  const gameOver = () => {
+    if (playerHealthPercent === 0 || enemyHealthPercent === 0 || timer === 0) {
+      return true;
+    }
+    return false;
+  };
+
+  const gameInterval = useRef<number>();
+
+  const playerWin = () => {
+    if (playerHealthPercent === 0 || enemyHealthPercent > playerHealthPercent) {
+      return "YOU LOSE";
+    }
+    if (enemyHealthPercent === 0 || playerHealthPercent > enemyHealthPercent) {
+      return "YOU WIN";
+    }
+    if (playerHealthPercent === enemyHealthPercent) {
+      return "DRAW";
+    }
+  };
 
   const animate = () => {
     window.requestAnimationFrame(animate);
@@ -20,6 +43,8 @@ const App = () => {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    background.update(ctx);
+    shop.update(ctx);
     player.update(ctx);
     enemy.update(ctx);
 
@@ -61,14 +86,13 @@ const App = () => {
     enemy.draw(ctx);
     controller();
     animate();
-    const interval = setInterval(() => {
-      if (timer > 0)
-        setTimer((prev) => {
-          return prev > 0 ? prev - 1 : prev;
-        });
+    gameInterval.current = setInterval(() => {
+      setTimer((prev) => {
+        return prev > 0 ? prev - 1 : prev;
+      });
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(gameInterval.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -95,6 +119,12 @@ const App = () => {
           />
         </div>
       </div>
+      {gameOver() && (
+        <div className="gameOver">
+          <p>GAME OVER</p>
+          <p>{playerWin()}</p>
+        </div>
+      )}
     </div>
   );
 };

@@ -91,3 +91,19 @@ canvas{
   color: white;
   border-radius: 8px;
 }
+
+.gameOver{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 50px;
+  font-family: "Press Start 2P", system-ui;
+  text-align: center;
+  color: white;
+  background-color: #2c67f2;
+  border: 5px solid goldenrod;
+  border-radius: 16px;
+  padding: 16px 32px;
+  line-height: 2em;
+}
