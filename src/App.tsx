@@ -8,19 +8,16 @@ import { shop } from "./component/shop";
 import { RectangularCollision } from "./utils/rectangularCollision";
 const App = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const canvasWidth = window.innerWidth;
-  const canvasHeight = window.innerHeight;
 
   const [playerHealthPercent, setPlayerHealthPercent] = useState(100);
   const [enemyHealthPercent, setEnemyHealthPercent] = useState(100);
   const [timer, setTimer] = useState(90);
 
   const gameOver = () => {
-    return playerHealthPercent === 0 || enemyHealthPercent === 0 || timer === 0
+    return playerHealthPercent === 0 || enemyHealthPercent === 0 || timer === 0;
   };
 
   const gameInterval = useRef<number>();
-
   const playerWin = () => {
     if (playerHealthPercent === 0 || enemyHealthPercent > playerHealthPercent) {
       return "YOU LOSE";
@@ -35,13 +32,18 @@ const App = () => {
 
   const animate = () => {
     window.requestAnimationFrame(animate);
-
     const ctx = canvasRef.current?.getContext("2d") as CanvasRenderingContext2D;
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    if (ctx)
+      ctx.clearRect(0, 0, background.image.width, background.image.height);
     ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    ctx.fillRect(0, 0, background.image.width, background.image.height);
     background.update(ctx);
     shop.update(ctx);
+    player.reverse =
+      (player.position.x + player.image.width / player.framesMax) / 2 -
+        (enemy.position.x + enemy.image.width / enemy.framesMax) / 2 >
+      0;
+    enemy.reverse = player.reverse;
     player.update(ctx);
     enemy.update(ctx);
 
@@ -63,11 +65,19 @@ const App = () => {
       player.attack();
     }
     if (
-      RectangularCollision(player.hitBox, enemy) &&
+      RectangularCollision(player.hitBox, {
+        position: {
+          x: enemy.position.x + enemy.offset.x,
+          y: enemy.position.y + enemy.offset.y,
+        },
+        width: enemy.width,
+        height: enemy.height,
+      }) &&
       player.isAttacking &&
       enemy.getHitTiming === 0
     ) {
-      enemy.getHitTiming = 2000;
+      enemy.getHitTiming = 1000;
+      enemy.takeDamage();
       setEnemyHealthPercent((prev) => prev - 10);
     }
   };
@@ -78,7 +88,7 @@ const App = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    ctx.fillRect(0, 0, background.image.width, background.image.height);
     player.draw(ctx);
     enemy.draw(ctx);
     controller();
@@ -97,8 +107,8 @@ const App = () => {
     <div className="gameScreen">
       <canvas
         ref={canvasRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
+        width={background.image.width}
+        height={background.image.height}
         className="canvas"
       />
       <div className="gameBar">
