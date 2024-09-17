@@ -1,31 +1,36 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { background } from "./component/background";
-import { controller, keysPress } from "./component/controller";
 import { enemy } from "./component/enemy";
 import { player } from "./component/player";
 import { shop } from "./component/shop";
 import { RectangularCollision } from "./utils/rectangularCollision";
+import gameController from "./class/controller";
+
+const maxHealth = 600;
 const App = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [playerHealthPercent, setPlayerHealthPercent] = useState(100);
-  const [enemyHealthPercent, setEnemyHealthPercent] = useState(100);
+  const [playerHealth, setPlayerHealth] = useState(600);
+  const [enemyHealth, setEnemyHealth] = useState(600);
   const [timer, setTimer] = useState(90);
 
   const gameOver = () => {
-    return playerHealthPercent === 0 || enemyHealthPercent === 0 || timer === 0;
+    if (playerHealth === 0) player.death();
+    if (enemyHealth === 0) enemy.death();
+    gameController.removeConfigKeys();
+    return playerHealth === 0 || enemyHealth === 0 || timer === 0;
   };
 
   const gameInterval = useRef<number>();
   const playerWin = () => {
-    if (playerHealthPercent === 0 || enemyHealthPercent > playerHealthPercent) {
+    if (playerHealth === 0 || enemyHealth > playerHealth) {
       return "YOU LOSE";
     }
-    if (enemyHealthPercent === 0 || playerHealthPercent > enemyHealthPercent) {
+    if (enemyHealth === 0 || playerHealth > enemyHealth) {
       return "YOU WIN";
     }
-    if (playerHealthPercent === enemyHealthPercent) {
+    if (playerHealth === enemyHealth) {
       return "DRAW";
     }
   };
@@ -33,10 +38,14 @@ const App = () => {
   const animate = () => {
     window.requestAnimationFrame(animate);
     const ctx = canvasRef.current?.getContext("2d") as CanvasRenderingContext2D;
+    ctx.save();
+    ctx.scale(
+      window.innerWidth / background.image.width,
+      window.innerHeight / background.image.height
+    );
     if (ctx)
       ctx.clearRect(0, 0, background.image.width, background.image.height);
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, background.image.width, background.image.height);
+
     background.update(ctx);
     shop.update(ctx);
     player.reverse =
@@ -47,23 +56,31 @@ const App = () => {
     player.update(ctx);
     enemy.update(ctx);
 
+    player.getHitTiming = Math.max(0, player.getHitTiming - 10);
     enemy.getHitTiming = Math.max(0, enemy.getHitTiming - 10);
 
-    if (keysPress.left) {
-      player.moveX(-5);
-    } else if (keysPress.right) {
-      player.moveX(5);
-    } else {
-      player.stopX();
+    if (gameController.keysPress.player1.left) player.moveX(-5);
+    else if (gameController.keysPress.player1.right) player.moveX(5);
+    else player.stopX();
+    if (gameController.keysPress.player1.jump) player.moveY(-10);
+    if (gameController.keysPress.player1.attack) player.attack();
+
+    if (gameController.keysPress.player2.left) enemy.moveX(-5);
+    else if (gameController.keysPress.player2.right) enemy.moveX(5);
+    else enemy.stopX();
+    if (gameController.keysPress.player2.jump) enemy.moveY(-10);
+    if (gameController.keysPress.player2.attack) {
+      enemy.attack();
+      console.log(enemy.hitBox, {
+        position: {
+          x: player.position.x + player.offset.x,
+          y: player.position.y + player.offset.y,
+        },
+        width: player.width,
+        height: player.height,
+      });
     }
 
-    if (keysPress.up) {
-      player.moveY(-10);
-    }
-
-    if (keysPress.space) {
-      player.attack();
-    }
     if (
       RectangularCollision(player.hitBox, {
         position: {
@@ -76,10 +93,29 @@ const App = () => {
       player.isAttacking &&
       enemy.getHitTiming === 0
     ) {
-      enemy.getHitTiming = 1000;
+      enemy.getHitTiming = 250;
       enemy.takeDamage();
-      setEnemyHealthPercent((prev) => prev - 10);
+      setEnemyHealth((prev) => prev - 10);
     }
+
+    if (
+      RectangularCollision(enemy.hitBox, {
+        position: {
+          x: player.position.x + player.offset.x,
+          y: player.position.y + player.offset.y,
+        },
+        width: player.width,
+        height: player.height,
+      }) &&
+      enemy.isAttacking &&
+      player.getHitTiming === 0
+    ) {
+      player.getHitTiming = 250;
+      player.takeDamage();
+      setPlayerHealth((prev) => prev - 10);
+    }
+
+    ctx.restore();
   };
 
   useEffect(() => {
@@ -91,7 +127,7 @@ const App = () => {
     ctx.fillRect(0, 0, background.image.width, background.image.height);
     player.draw(ctx);
     enemy.draw(ctx);
-    controller();
+    gameController.configKeys();
     animate();
     gameInterval.current = setInterval(() => {
       setTimer((prev) => {
@@ -107,22 +143,22 @@ const App = () => {
     <div className="gameScreen">
       <canvas
         ref={canvasRef}
-        width={background.image.width}
-        height={background.image.height}
+        width={window.innerWidth}
+        height={window.innerHeight}
         className="canvas"
       />
       <div className="gameBar">
         <div className="healthWrapper">
           <div
             className="healthBar reverse"
-            style={{ width: `${playerHealthPercent}%` }}
+            style={{ width: `${(playerHealth / maxHealth) * 100}%` }}
           />
         </div>
         <div className="timer">{timer}</div>
         <div className="healthWrapper">
           <div
             className="healthBar"
-            style={{ width: `${enemyHealthPercent}%` }}
+            style={{ width: `${(enemyHealth / maxHealth) * 100}%` }}
           />
         </div>
       </div>

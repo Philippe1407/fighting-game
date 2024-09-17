@@ -57,6 +57,13 @@ export class Sprite {
     //   this.width * this.scale,
     //   this.height * this.scale
     // );
+    // ctx.fillStyle = "yellow";
+    // ctx.fillRect(
+    //   this.position.x,
+    //   this.position.y,
+    //   (this.image.width / this.framesMax) * this.scale,
+    //   this.image.height * this.scale
+    // );
     if (this.reverse) {
       ctx.save();
       ctx.scale(-1, 1);

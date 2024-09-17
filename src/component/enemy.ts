@@ -15,15 +15,16 @@ export const enemy = new Fighter({
   imageSrc: enemyIdle,
   scale: 1.25,
   offset: { x: 90, y: 75 },
+  isFacingRight: false,
   sprites: {
     attack: [
       {
         imgSrc: enemyAttack1,
-        maxFrame: 6,
+        maxFrame: 4,
       },
       {
         imgSrc: enemyAttack2,
-        maxFrame: 6,
+        maxFrame: 4,
       },
     ],
     idle: {

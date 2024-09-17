@@ -1,3 +1,4 @@
+import { background } from "../component/background";
 import { Sprite } from "./sprite";
 
 const gravity = 0.3;
@@ -15,6 +16,7 @@ type TFighter = {
   framesMax: number;
   scale?: number;
   offset?: { x: number; y: number };
+  isFacingRight?: boolean;
   sprites: {
     idle?: TSprite;
     run?: TSprite;
@@ -22,6 +24,7 @@ type TFighter = {
     fall?: TSprite;
     attack?: TSprite[];
     damaged?: TSprite;
+    death?: TSprite;
   };
 };
 
@@ -39,6 +42,8 @@ export class Fighter extends Sprite {
   attackFrame: number;
   getHitTiming: number;
   isTakingDamage: boolean;
+  isFacingRight: boolean;
+  isDeath: boolean;
   sprites: {
     idle?: TSprite;
     run?: TSprite;
@@ -46,6 +51,7 @@ export class Fighter extends Sprite {
     fall?: TSprite;
     attack?: TSprite[];
     damaged?: TSprite;
+    death?: TSprite;
   };
   constructor({
     position,
@@ -56,6 +62,7 @@ export class Fighter extends Sprite {
     scale,
     offset,
     sprites,
+    isFacingRight = true,
   }: TFighter) {
     super({ position, imageSrc, framesMax, scale, offset });
     this.position = position;
@@ -72,9 +79,12 @@ export class Fighter extends Sprite {
     this.sprites = sprites;
     this.attackFrame = 0;
     this.isTakingDamage = false;
+    this.isFacingRight = isFacingRight;
+    this.isDeath = false;
   }
 
   currentSprites() {
+    if (this.isDeath) return this.sprites?.death;
     if (this.isTakingDamage) return this.sprites?.damaged;
     if (this.isAttacking) return this.sprites.attack?.[this.attackFrame];
     if (this.velocity.y < 0) return this.sprites?.jump;
@@ -94,10 +104,9 @@ export class Fighter extends Sprite {
       this.image.src = currentSprite?.imgSrc;
       this.framesMax = currentSprite?.maxFrame;
     }
-
     if (
       this.position.y + this.image.height * this.scale + this.velocity.y >
-      ctx.canvas.height
+      background.image.height
     ) {
       this.velocity.y = 0;
       this.isJumping = false;
@@ -108,20 +117,21 @@ export class Fighter extends Sprite {
     this.position.x += this.velocity.x;
 
     this.hitBox.position = {
-      x: this.reverse
-        ? this.position.x + this.offset.x * this.scale - this.hitBox.width
-        : this.position.x + (this.offset.x + this.width) * this.scale,
+      x:
+        this.reverse !== !this.isFacingRight
+          ? this.position.x + this.offset.x * this.scale - this.hitBox.width
+          : this.position.x + (this.offset.x + this.width) * this.scale,
       y: this.position.y + this.offset.y * this.scale,
     };
 
     // if (this.isAttacking) {
-    //   ctx.fillStyle = "green";
-    //   ctx.fillRect(
-    //     this.hitBox.position.x,
-    //     this.hitBox.position.y,
-    //     this.hitBox.width,
-    //     this.hitBox.height
-    //   );
+    // ctx.fillStyle = "green";
+    // ctx.fillRect(
+    //   this.hitBox.position.x,
+    //   this.hitBox.position.y,
+    //   this.hitBox.width,
+    //   this.hitBox.height
+    // );
     // }
 
     this.animateFrames();
@@ -162,5 +172,9 @@ export class Fighter extends Sprite {
     setTimeout(() => {
       this.isTakingDamage = false;
     }, 300);
+  }
+
+  death() {
+    this.isDeath = true;
   }
 }
