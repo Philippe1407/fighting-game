@@ -49,6 +49,12 @@ export class Sprite {
       this.currentFrame = (this.currentFrame + 1) % this.framesMax;
   }
 
+  animateOnce() {
+    this.frameElapsed++;
+    if (this.frameElapsed % this.frameHold === 0)
+      this.currentFrame = Math.min(this.currentFrame + 1, this.framesMax - 1);
+  }
+
   draw(ctx: CanvasRenderingContext2D) {
     // ctx.fillStyle = "white";
     // ctx.fillRect(

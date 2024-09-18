@@ -6,6 +6,7 @@ import enemyRun from "../assets/kenji/Run.png";
 import enemyJump from "../assets/kenji/Jump.png";
 import enemyFall from "../assets/kenji/Fall.png";
 import enemyHit from "../assets/kenji/Take hit.png";
+import enemyDeath from "../assets/kenji/Death.png";
 
 export const enemy = new Fighter({
   position: { x: 400, y: 0 },
@@ -46,6 +47,10 @@ export const enemy = new Fighter({
     damaged: {
       imgSrc: enemyHit,
       maxFrame: 3,
+    },
+    death: {
+      imgSrc: enemyDeath,
+      maxFrame: 7,
     },
   },
 });

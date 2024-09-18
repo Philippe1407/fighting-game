@@ -28,6 +28,8 @@ class Controller {
   player2Keys: TPlayerKey;
   playMode: TMode;
   keysPress: TKeysPress;
+  keydownEvent: (event: KeyboardEvent) => void;
+  keyupEvent: (event: KeyboardEvent) => void;
   constructor(playMode: TMode = "single") {
     this.player1Keys = {
       leftKey: "a",
@@ -56,16 +58,14 @@ class Controller {
         attack: false,
       },
     };
+    this.keydownEvent = this.keyEnable.bind(this);
+    this.keyupEvent = this.keyDisable.bind(this);
+
     if (Controller.instance) {
       return Controller.instance;
+    } else {
+      Controller.instance = this;
     }
-  }
-
-  static getInstance() {
-    if (!Controller.instance) {
-      Controller.instance = new Controller();
-    }
-    return Controller.instance;
   }
 
   getKeys() {
@@ -92,128 +92,90 @@ class Controller {
     };
   }
 
-  configKeys() {
-    window.addEventListener("keydown", (e) => {
-      switch (e.key) {
-        case this.player1Keys.leftKey:
-          this.keysPress.player1.left = true;
-          break;
-        case this.player1Keys.rightKey:
-          console.log("gogo");
-          this.keysPress.player1.right = true;
-          break;
-        case this.player1Keys.jumpKey:
-          this.keysPress.player1.jump = true;
-          break;
-        case this.player1Keys.attackKey:
-          this.keysPress.player1.attack = true;
-          break;
-        case this.player2Keys.leftKey:
-          this.keysPress.player2.left = true;
-          break;
-        case this.player2Keys.rightKey:
-          this.keysPress.player2.right = true;
-          break;
-        case this.player2Keys.jumpKey:
-          this.keysPress.player2.jump = true;
-          break;
-        case this.player2Keys.attackKey:
-          this.keysPress.player2.attack = true;
-          break;
-      }
-    });
+  private keyEnable(e: globalThis.KeyboardEvent) {
+    switch (e.key) {
+      case this.player1Keys.leftKey:
+        this.keysPress.player1.left = true;
+        break;
+      case this.player1Keys.rightKey:
+        this.keysPress.player1.right = true;
+        break;
+      case this.player1Keys.jumpKey:
+        this.keysPress.player1.jump = true;
+        break;
+      case this.player1Keys.attackKey:
+        this.keysPress.player1.attack = true;
+        break;
+      case this.player2Keys.leftKey:
+        this.keysPress.player2.left = true;
+        break;
+      case this.player2Keys.rightKey:
+        this.keysPress.player2.right = true;
+        break;
+      case this.player2Keys.jumpKey:
+        this.keysPress.player2.jump = true;
+        break;
+      case this.player2Keys.attackKey:
+        this.keysPress.player2.attack = true;
+        break;
+    }
+  }
 
-    window.addEventListener("keyup", (e) => {
-      switch (e.key) {
-        case this.player1Keys.leftKey:
-          this.keysPress.player1.left = false;
-          break;
-        case this.player1Keys.rightKey:
-          this.keysPress.player1.right = false;
-          break;
-        case this.player1Keys.jumpKey:
-          this.keysPress.player1.jump = false;
-          break;
-        case this.player1Keys.attackKey:
-          this.keysPress.player1.attack = false;
-          break;
-        case this.player2Keys.leftKey:
-          this.keysPress.player2.left = false;
-          break;
-        case this.player2Keys.rightKey:
-          this.keysPress.player2.right = false;
-          break;
-        case this.player2Keys.jumpKey:
-          this.keysPress.player2.jump = false;
-          break;
-        case this.player2Keys.attackKey:
-          this.keysPress.player2.attack = false;
-          break;
-      }
-    });
+  private keyDisable(e: globalThis.KeyboardEvent) {
+    switch (e.key) {
+      case this.player1Keys.leftKey:
+        this.keysPress.player1.left = false;
+        break;
+      case this.player1Keys.rightKey:
+        this.keysPress.player1.right = false;
+        break;
+      case this.player1Keys.jumpKey:
+        this.keysPress.player1.jump = false;
+        break;
+      case this.player1Keys.attackKey:
+        this.keysPress.player1.attack = false;
+        break;
+      case this.player2Keys.leftKey:
+        this.keysPress.player2.left = false;
+        break;
+      case this.player2Keys.rightKey:
+        this.keysPress.player2.right = false;
+        break;
+      case this.player2Keys.jumpKey:
+        this.keysPress.player2.jump = false;
+        break;
+      case this.player2Keys.attackKey:
+        this.keysPress.player2.attack = false;
+        break;
+    }
+  }
+
+  configKeys() {
+    this.keydownEvent = this.keyEnable.bind(this);
+    this.keyupEvent = this.keyDisable.bind(this);
+    window.addEventListener("keydown", this.keydownEvent);
+    window.addEventListener("keyup", this.keyupEvent);
   }
 
   removeConfigKeys() {
-    window.removeEventListener("keydown", (e) => {
-      switch (e.key) {
-        case this.player1Keys.leftKey:
-          this.keysPress.player1.left = true;
-          break;
-        case this.player1Keys.rightKey:
-          console.log("gogo");
-          this.keysPress.player1.right = true;
-          break;
-        case this.player1Keys.jumpKey:
-          this.keysPress.player1.jump = true;
-          break;
-        case this.player1Keys.attackKey:
-          this.keysPress.player1.attack = true;
-          break;
-        case this.player2Keys.leftKey:
-          this.keysPress.player2.left = true;
-          break;
-        case this.player2Keys.rightKey:
-          this.keysPress.player2.right = true;
-          break;
-        case this.player2Keys.jumpKey:
-          this.keysPress.player2.jump = true;
-          break;
-        case this.player2Keys.attackKey:
-          this.keysPress.player2.attack = true;
-          break;
-      }
-    });
-
-    window.removeEventListener("keyup", (e) => {
-      switch (e.key) {
-        case this.player1Keys.leftKey:
-          this.keysPress.player1.left = false;
-          break;
-        case this.player1Keys.rightKey:
-          this.keysPress.player1.right = false;
-          break;
-        case this.player1Keys.jumpKey:
-          this.keysPress.player1.jump = false;
-          break;
-        case this.player1Keys.attackKey:
-          this.keysPress.player1.attack = false;
-          break;
-        case this.player2Keys.leftKey:
-          this.keysPress.player2.left = false;
-          break;
-        case this.player2Keys.rightKey:
-          this.keysPress.player2.right = false;
-          break;
-        case this.player2Keys.jumpKey:
-          this.keysPress.player2.jump = false;
-          break;
-        case this.player2Keys.attackKey:
-          this.keysPress.player2.attack = false;
-          break;
-      }
-    });
+    window.removeEventListener("keydown", this.keydownEvent);
+    window.removeEventListener("keyup", this.keyupEvent);
+    this.keysPress = {
+      player1: {
+        left: false,
+        right: false,
+        jump: false,
+        attack: false,
+      },
+      player2: {
+        left: false,
+        right: false,
+        jump: false,
+        attack: false,
+      },
+    };
   }
 }
-const gameController = Object.freeze(new Controller());
+const gameController = new Controller();
 
 export default gameController;

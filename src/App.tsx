@@ -10,17 +10,13 @@ import gameController from "./class/controller";
 const maxHealth = 600;
 const App = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const requestRef = useRef<number>(0);
+  const playerHealthRef = useRef<number>(maxHealth);
+  const enemyHealthRef = useRef<number>(maxHealth);
 
-  const [playerHealth, setPlayerHealth] = useState(600);
-  const [enemyHealth, setEnemyHealth] = useState(600);
+  const [playerHealth, setPlayerHealth] = useState(maxHealth);
+  const [enemyHealth, setEnemyHealth] = useState(maxHealth);
   const [timer, setTimer] = useState(90);
-
-  const gameOver = () => {
-    if (playerHealth === 0) player.death();
-    if (enemyHealth === 0) enemy.death();
-    gameController.removeConfigKeys();
-    return playerHealth === 0 || enemyHealth === 0 || timer === 0;
-  };
 
   const gameInterval = useRef<number>();
   const playerWin = () => {
@@ -35,9 +31,28 @@ const App = () => {
     }
   };
 
+  const gameOverDetect = () => {
+    if (playerHealthRef.current <= 0) player.death();
+    if (enemyHealthRef.current <= 0) enemy.death();
+    if (
+      playerHealthRef.current <= 0 ||
+      enemyHealthRef.current <= 0 ||
+      timer === 0
+    ) {
+      clearInterval(gameInterval.current);
+      cancelAnimationFrame(requestRef.current);
+      gameController.removeConfigKeys();
+    }
+    return (
+      playerHealthRef.current <= 0 || enemyHealthRef.current <= 0 || timer === 0
+    );
+  };
+
   const animate = () => {
     window.requestAnimationFrame(animate);
+
     const ctx = canvasRef.current?.getContext("2d") as CanvasRenderingContext2D;
+    if (!ctx) return;
     ctx.save();
     ctx.scale(
       window.innerWidth / background.image.width,
@@ -62,13 +77,13 @@ const App = () => {
     if (gameController.keysPress.player1.left) player.moveX(-5);
     else if (gameController.keysPress.player1.right) player.moveX(5);
     else player.stopX();
-    if (gameController.keysPress.player1.jump) player.moveY(-10);
+    if (gameController.keysPress.player1.jump) player.moveY(-12);
     if (gameController.keysPress.player1.attack) player.attack();
 
     if (gameController.keysPress.player2.left) enemy.moveX(-5);
     else if (gameController.keysPress.player2.right) enemy.moveX(5);
     else enemy.stopX();
-    if (gameController.keysPress.player2.jump) enemy.moveY(-10);
+    if (gameController.keysPress.player2.jump) enemy.moveY(-15);
     if (gameController.keysPress.player2.attack) {
       enemy.attack();
       console.log(enemy.hitBox, {
@@ -95,7 +110,8 @@ const App = () => {
     ) {
       enemy.getHitTiming = 250;
       enemy.takeDamage();
-      setEnemyHealth((prev) => prev - 10);
+      setEnemyHealth((prev) => prev - 100);
+      enemyHealthRef.current -= 100;
     }
 
     if (
@@ -112,8 +128,11 @@ const App = () => {
     ) {
       player.getHitTiming = 250;
       player.takeDamage();
-      setPlayerHealth((prev) => prev - 10);
+      setPlayerHealth((prev) => prev - 100);
+      playerHealthRef.current -= 100;
     }
+
+    gameOverDetect();
 
     ctx.restore();
   };
@@ -123,19 +142,19 @@ const App = () => {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, background.image.width, background.image.height);
-    player.draw(ctx);
-    enemy.draw(ctx);
     gameController.configKeys();
-    animate();
+    requestRef.current = requestAnimationFrame(animate);
     gameInterval.current = setInterval(() => {
       setTimer((prev) => {
         return prev > 0 ? prev - 1 : prev;
       });
     }, 1000);
 
-    return () => clearInterval(gameInterval.current);
+    return () => {
+      gameController.removeConfigKeys();
+      clearInterval(gameInterval.current);
+      cancelAnimationFrame(requestRef.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -162,7 +181,7 @@ const App = () => {
           />
         </div>
       </div>
-      {gameOver() && (
+      {gameOverDetect() && (
         <div className="gameOver">
           <p>GAME OVER</p>
           <p>{playerWin()}</p>

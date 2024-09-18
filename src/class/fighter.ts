@@ -1,7 +1,7 @@
 import { background } from "../component/background";
 import { Sprite } from "./sprite";
 
-const gravity = 0.3;
+const gravity = 0.5;
 
 type TSprite = {
   imgSrc: string;
@@ -133,8 +133,9 @@ export class Fighter extends Sprite {
     //   this.hitBox.height
     // );
     // }
-
-    this.animateFrames();
+    if (this.currentSprites()?.imgSrc === this.sprites?.death?.imgSrc) {
+      this.animateOnce();
+    } else this.animateFrames();
   }
 
   moveX(x: number) {

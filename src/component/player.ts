@@ -6,6 +6,7 @@ import playerFall from "../assets/samuraiMack/Fall.png";
 import playerAttack1 from "../assets/samuraiMack/Attack1.png";
 import playerAttack2 from "../assets/samuraiMack/Attack2.png";
 import playerDamaged from "../assets/samuraiMack/Take Hit.png";
+import playerDeath from "../assets/samuraiMack/Death.png";
 
 export const player = new Fighter({
   position: { x: 0, y: 0 },
@@ -44,6 +45,10 @@ export const player = new Fighter({
     damaged: {
       imgSrc: playerDamaged,
       maxFrame: 4,
+    },
+    death: {
+      imgSrc: playerDeath,
+      maxFrame: 6,
     },
   },
   offset: { x: 90, y: 75 },
