@@ -162,21 +162,25 @@ const App = () => {
         <div className="healthWrapper">
           <div
             className="healthBar reverse"
-            style={{ width: `${(playerHealth / maxHealth) * 100}%` }}
+            style={{
+              width: `${Math.max(0, (playerHealth / maxHealth) * 100)}%`,
+            }}
           />
         </div>
         <div className="timer">{timer}</div>
         <div className="healthWrapper">
           <div
             className="healthBar"
-            style={{ width: `${(enemyHealth / maxHealth) * 100}%` }}
+            style={{
+              width: `${Math.max(0, (enemyHealth / maxHealth) * 100)}%`,
+            }}
           />
         </div>
       </div>
       {gameOverDetect() && (
         <div className="gameOver">
           <p>GAME OVER</p>
-          <p>{playerWin()}</p>  
+          <p>{playerWin()}</p>
         </div>
       )}
     </div>

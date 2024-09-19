@@ -28,8 +28,10 @@ class Controller {
   player2Keys: TPlayerKey;
   playMode: TMode;
   keysPress: TKeysPress;
-  keydownEvent: (event: KeyboardEvent) => void;
-  keyupEvent: (event: KeyboardEvent) => void;
+  keydownEvent1: (event: KeyboardEvent) => void;
+  keyupEvent1: (event: KeyboardEvent) => void;
+  keydownEvent2: (event: KeyboardEvent) => void;
+  keyupEvent2: (event: KeyboardEvent) => void;
   constructor(playMode: TMode = "single") {
     this.player1Keys = {
       leftKey: "a",
@@ -58,8 +60,10 @@ class Controller {
         attack: false,
       },
     };
-    this.keydownEvent = this.keyEnable.bind(this);
-    this.keyupEvent = this.keyDisable.bind(this);
+    this.keydownEvent1 = this.keyEnablePlayer1.bind(this);
+    this.keyupEvent1 = this.keyDisablePlayer1.bind(this);
+    this.keydownEvent2 = this.keyEnablePlayer2.bind(this);
+    this.keyupEvent2 = this.keyDisablePlayer2.bind(this);
 
     if (Controller.instance) {
       return Controller.instance;
@@ -92,7 +96,7 @@ class Controller {
     };
   }
 
-  private keyEnable(e: globalThis.KeyboardEvent) {
+  private keyEnablePlayer1(e: globalThis.KeyboardEvent) {
     switch (e.key) {
       case this.player1Keys.leftKey:
         this.keysPress.player1.left = true;
@@ -106,6 +110,11 @@ class Controller {
       case this.player1Keys.attackKey:
         this.keysPress.player1.attack = true;
         break;
+    }
+  }
+
+  private keyEnablePlayer2(e: globalThis.KeyboardEvent) {
+    switch (e.key) {
       case this.player2Keys.leftKey:
         this.keysPress.player2.left = true;
         break;
@@ -121,7 +130,7 @@ class Controller {
     }
   }
 
-  private keyDisable(e: globalThis.KeyboardEvent) {
+  private keyDisablePlayer1(e: globalThis.KeyboardEvent) {
     switch (e.key) {
       case this.player1Keys.leftKey:
         this.keysPress.player1.left = false;
@@ -135,6 +144,11 @@ class Controller {
       case this.player1Keys.attackKey:
         this.keysPress.player1.attack = false;
         break;
+    }
+  }
+
+  private keyDisablePlayer2(e: globalThis.KeyboardEvent) {
+    switch (e.key) {
       case this.player2Keys.leftKey:
         this.keysPress.player2.left = false;
         break;
@@ -151,15 +165,19 @@ class Controller {
   }
 
   configKeys() {
-    this.keydownEvent = this.keyEnable.bind(this);
-    this.keyupEvent = this.keyDisable.bind(this);
-    window.addEventListener("keydown", this.keydownEvent);
-    window.addEventListener("keyup", this.keyupEvent);
+    this.keydownEvent1 = this.keyEnablePlayer1.bind(this);
+    this.keydownEvent2 = this.keyEnablePlayer2.bind(this);
+    this.keyupEvent1 = this.keyDisablePlayer1.bind(this);
+    this.keyupEvent2 = this.keyDisablePlayer2.bind(this);
+    window.addEventListener("keydown", this.keydownEvent1);
+    window.addEventListener("keydown", this.keydownEvent2);
+    window.addEventListener("keyup", this.keyupEvent1);
+    window.addEventListener("keyup", this.keyupEvent2);
   }
 
   removeConfigKeys() {
-    window.removeEventListener("keydown", this.keydownEvent);
-    window.removeEventListener("keyup", this.keyupEvent);
+    window.removeEventListener("keydown", this.keydownEvent1);
+    window.removeEventListener("keyup", this.keyupEvent2);
     this.keysPress = {
       player1: {
         left: false,

@@ -67,7 +67,7 @@ export class Fighter extends Sprite {
     super({ position, imageSrc, framesMax, scale, offset });
     this.position = position;
     this.velocity = velocity;
-    this.isJumping = false;
+    this.isJumping = true;
     this.hitBox = {
       position: { x: this.position.x, y: this.position.y },
       width: 75 * this.scale,
