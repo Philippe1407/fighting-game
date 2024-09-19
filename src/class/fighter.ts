@@ -113,6 +113,17 @@ export class Fighter extends Sprite {
     } else {
       this.velocity.y += gravity;
     }
+
+    if (
+      this.position.x +
+        (this.offset.x + this.width) * this.scale +
+        this.velocity.x >
+        background.image.width ||
+      this.position.x + this.offset.x * this.scale + this.velocity.x < 0
+    ) {
+      this.velocity.x = 0;
+    }
+
     this.position.y += this.velocity.y;
     this.position.x += this.velocity.x;
 
@@ -165,7 +176,7 @@ export class Fighter extends Sprite {
       this.frameHold = 20;
       this.attackFrame =
         (this.attackFrame + 1) % (this.sprites.attack?.length || 1);
-    }, 300);
+    }, 375);
   }
 
   takeDamage() {

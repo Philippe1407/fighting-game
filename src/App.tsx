@@ -83,17 +83,9 @@ const App = () => {
     if (gameController.keysPress.player2.left) enemy.moveX(-5);
     else if (gameController.keysPress.player2.right) enemy.moveX(5);
     else enemy.stopX();
-    if (gameController.keysPress.player2.jump) enemy.moveY(-15);
+    if (gameController.keysPress.player2.jump) enemy.moveY(-12);
     if (gameController.keysPress.player2.attack) {
       enemy.attack();
-      console.log(enemy.hitBox, {
-        position: {
-          x: player.position.x + player.offset.x,
-          y: player.position.y + player.offset.y,
-        },
-        width: player.width,
-        height: player.height,
-      });
     }
 
     if (
@@ -110,8 +102,8 @@ const App = () => {
     ) {
       enemy.getHitTiming = 250;
       enemy.takeDamage();
-      setEnemyHealth((prev) => prev - 100);
-      enemyHealthRef.current -= 100;
+      setEnemyHealth((prev) => prev - 10);
+      enemyHealthRef.current -= 10;
     }
 
     if (
@@ -128,8 +120,8 @@ const App = () => {
     ) {
       player.getHitTiming = 250;
       player.takeDamage();
-      setPlayerHealth((prev) => prev - 100);
-      playerHealthRef.current -= 100;
+      setPlayerHealth((prev) => prev - 10);
+      playerHealthRef.current -= 10;
     }
 
     gameOverDetect();
@@ -184,7 +176,7 @@ const App = () => {
       {gameOverDetect() && (
         <div className="gameOver">
           <p>GAME OVER</p>
-          <p>{playerWin()}</p>
+          <p>{playerWin()}</p>  
         </div>
       )}
     </div>
